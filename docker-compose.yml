@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  web:
+    container_name: back
+    build:
+      context: .
+      dockerfile: dockerfile
+    restart: always
+    volumes:
+      - .:/root
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+  db:
+    container_name: postgres_ghost
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_USER = postgres
+      - PASSWORD = root
+      - POSTGRES_DB = ghost_db
+
+    volumes:  
+      - ./postgres_data:/var/lib/postgresql
+    restart: always
