@@ -5,6 +5,9 @@ class TodoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Todo
         fields = '__all__'
+        extra_kwargs = {
+            'spent': {'format': '%Y-%m-%d %H:%M:%S'}
+        }
 
 class StatusSerializer(serializers.ModelSerializer):
     class Meta:

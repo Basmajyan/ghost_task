@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from todo.models import Todo, Status
+import datetime
 from todo.serializer import TodoSerializer, StatusSerializer
 
 
@@ -13,11 +14,11 @@ class TodoList(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = TodoSerializer(data=request.data)
+        serializer = TodoSerializer(data=request.data)        
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=200)
-        return Response(serializer.errors, status=400)
+            return Response(serializer.data, status=200)        
+        return Response('Validation error', status=400)
 
 
 class TodoView(APIView):
@@ -31,11 +32,30 @@ class TodoView(APIView):
         except Exception as e:
             return Response(str(e), status=404)
 
+    def put(self, request, id):
+        field = request.data['field']
+        value = request.data['value']        
+        if not value:
+            value = None
+
+        try:
+            Todo.objects.filter(id=id).update(
+                **{field: value},
+            )
+        except Todo.DoesNotExist:
+            return Response({}, status=404)
+        return Response('ok', status=200)
+
     def patch(self, request, id):
         try:
             todo = Todo.objects.get(id=id)
         except Exception as e:
             return Response(e, status=404)
+
+        row_id = request.data.get('row_id')
+        if row_id:
+            Todo.objects.filter(id=id).update(status=row_id)
+            return Response('success', status=200)
 
         title = request.data.get('title')
         status = request.data.get('status')
